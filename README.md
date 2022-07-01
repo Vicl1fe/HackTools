@@ -18,3 +18,8 @@
 
 ### Bug
 - 给文本域加上滚动条后，UI界面会时不时的变化，所以暂时没有添加滚动条功能。
+
+## 截图
+[![jMzGtS.png](https://s1.ax1x.com/2022/07/01/jMzGtS.png)](https://imgtu.com/i/jMzGtS)
+[![jMzJfg.png](https://s1.ax1x.com/2022/07/01/jMzJfg.png)](https://imgtu.com/i/jMzJfg)
+[![jMz8k8.png](https://s1.ax1x.com/2022/07/01/jMz8k8.png)](https://imgtu.com/i/jMz8k8)
