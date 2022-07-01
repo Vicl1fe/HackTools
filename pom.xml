@@ -18,10 +18,24 @@
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.swinglabs/swingx -->
+        <!--  文本Prompt      -->
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
             <version>1.6.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk16 -->
+        <!--    weblogic解密    -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
+            <version>1.46</version>
+        </dependency>
+<!--   Druid解密     -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.1</version>
         </dependency>
     </dependencies>
 

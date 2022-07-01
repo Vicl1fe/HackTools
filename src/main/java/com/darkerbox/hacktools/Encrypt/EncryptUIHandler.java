@@ -1,6 +1,7 @@
 package com.darkerbox.hacktools.Encrypt;
 
 import burp.IBurpExtenderCallbacks;
+import com.alibaba.druid.filter.config.ConfigTools;
 import com.darkerbox.hacktools.UIHandler;
 import com.darkerbox.utils.AesUtils;
 import com.darkerbox.utils.DesUtils;
@@ -13,8 +14,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
+import java.security.Provider;
+import java.security.Security;
 
 import com.darkerbox.utils.UiUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class EncryptUIHandler implements UIHandler {
 	private String tabname = "加解密";
@@ -38,9 +42,11 @@ public class EncryptUIHandler implements UIHandler {
 
 	public final String[] encryptType = new String[]{
 			"MD5",
+			"Weblogic",
+			"Druid",
 			"AES/ECB/PKCS5Padding",
 			"AES/CBC/PKCS5Padding",
-			"DES/ECB/PKCS5Padding"
+			"DES/ECB/PKCS5Padding",
 	};
 
 	@Override
@@ -251,14 +257,14 @@ public class EncryptUIHandler implements UIHandler {
 		comboBox.setPreferredSize(preferredSize);
 //		comboBox.setSize(10,10);
 
-		comboBox.addItem(encryptType[0]);
 		// 初始化的时候是MD5,禁用iv和key框
 		jTextFieldOne.setEnabled(false);
 		jTextFieldTwo.setEnabled(false);
 		jDecbutton.setEnabled(false);
-		comboBox.addItem(encryptType[1]);
-		comboBox.addItem(encryptType[2]);
-		comboBox.addItem(encryptType[3]);
+
+		for (int i = 0; i < encryptType.length; i++) {
+			comboBox.addItem(encryptType[i]);
+		}
 
 		comboBox.addItemListener(new ItemListener() {
 			@Override
@@ -275,15 +281,33 @@ public class EncryptUIHandler implements UIHandler {
 							jTextFieldOne.setEnabled(false);
 							jTextFieldTwo.setEnabled(false);
 							jDecbutton.setEnabled(false);
-
+							jEncbutton.setEnabled(true);
 //							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
 //							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
 
 
 							UiUtils.setPrompt("",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
+							
+							break;
+						case "Weblogic":
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setEnabled(true);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							UiUtils.setPrompt(" DAT文件绝对路径",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
 
-
+							break;
+						case "Druid":
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setEnabled(true);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							UiUtils.setPrompt(" 公钥",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
 						case "AES/ECB/PKCS5Padding":
@@ -294,20 +318,20 @@ public class EncryptUIHandler implements UIHandler {
 //							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
 //							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
 							jDecbutton.setEnabled(true);
-							UiUtils.setPrompt("  密钥",jTextFieldOne);
+							jEncbutton.setEnabled(true);
+							UiUtils.setPrompt(" 密钥",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
 						case "AES/CBC/PKCS5Padding":
-//							jTextFieldOne.setText("");
-//							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(true);
 //							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
 //							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
 							jDecbutton.setEnabled(true);
-							UiUtils.setPrompt("  密钥",jTextFieldOne);
-							UiUtils.setPrompt("  IV",jTextFieldTwo);
+							jEncbutton.setEnabled(true);
+							UiUtils.setPrompt(" 密钥",jTextFieldOne);
+							UiUtils.setPrompt(" IV",jTextFieldTwo);
 							break;
 						case "DES/ECB/PKCS5Padding":
 							jTextFieldOne.setText("");
@@ -315,9 +339,10 @@ public class EncryptUIHandler implements UIHandler {
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(false);
 							jDecbutton.setEnabled(true);
+							jEncbutton.setEnabled(true);
 //							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
 //							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
-							UiUtils.setPrompt("  密钥",jTextFieldOne);
+							UiUtils.setPrompt(" 密钥",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
 							break;
 						default:
@@ -440,6 +465,29 @@ public class EncryptUIHandler implements UIHandler {
 						switch (option){
 							case "MD5":
 								break;
+							case "Weblogic":
+								String datPath = jTextFieldOne.getText().trim();
+								String encryptText = inputJTextArea.getText().trim();
+
+								Security.addProvider((Provider)new BouncyCastleProvider());
+
+								if (encryptText.startsWith("{AES}")) {
+									encryptText = encryptText.replaceAll("^[{AES}]+", "");
+
+									result = WeblogicDecrypt.decryptAES(datPath, encryptText);
+
+								} else if (encryptText.startsWith("{3DES}")) {
+									encryptText = encryptText.replaceAll("^[{3DES}]+", "");
+									result = WeblogicDecrypt.decrypt3DES(datPath, encryptText);
+								} else {
+									result = "密文输入错误";
+								}
+								break;
+							case "Druid":
+								String publickey = jTextFieldOne.getText().trim();
+
+								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
+								break;
 							case "AES/ECB/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = EncUtils.b64decode(inputJTextArea.getText().trim());
@@ -466,13 +514,14 @@ public class EncryptUIHandler implements UIHandler {
 							default:
 								break;
 						}
+
 						outputJTextarea.setText(result);
 					}catch (Exception p){
 						p.printStackTrace();
 						try {
 							outputJTextarea.setText(p.toString());
 							callbacks.getStderr().write(p.toString().getBytes());
-						} catch (IOException ex) {
+						} catch (Exception ex) {
 							ex.printStackTrace();
 						}
 					}

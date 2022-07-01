@@ -3,7 +3,7 @@
 
 ## 功能
 ### 加解密
-- 目前支持AES、DES、MD5(只有加密)
+- 目前支持AES、DES、MD5(只有加密)、Weblogic、Druid
 - 加密时默认输出为Base64编码
 - 解密时默认输入为Base64编码
 - 密钥的编码可选择编码方式(BASE64、TEXT)
@@ -23,3 +23,8 @@
 [![jMzGtS.png](https://s1.ax1x.com/2022/07/01/jMzGtS.png)](https://imgtu.com/i/jMzGtS)
 [![jMzJfg.png](https://s1.ax1x.com/2022/07/01/jMzJfg.png)](https://imgtu.com/i/jMzJfg)
 [![jMz8k8.png](https://s1.ax1x.com/2022/07/01/jMz8k8.png)](https://imgtu.com/i/jMz8k8)
+
+
+
+# 参考
+- https://github.com/TideSec/Decrypt_Weblogic_Password
