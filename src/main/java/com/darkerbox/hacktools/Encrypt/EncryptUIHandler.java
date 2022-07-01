@@ -2,10 +2,9 @@ package com.darkerbox.hacktools.Encrypt;
 
 import burp.IBurpExtenderCallbacks;
 import com.darkerbox.hacktools.UIHandler;
-import com.darkerbox.utils.AesUtil;
-import com.darkerbox.utils.DesUtil;
+import com.darkerbox.utils.AesUtils;
+import com.darkerbox.utils.DesUtils;
 import com.darkerbox.utils.EncUtils;
-import com.darkerbox.utils.StrUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,8 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import org.jdesktop.swingx.prompt.PromptSupport;
+
+import com.darkerbox.utils.UiUtils;
 
 public class EncryptUIHandler implements UIHandler {
 	private String tabname = "加解密";
@@ -32,6 +31,9 @@ public class EncryptUIHandler implements UIHandler {
 	public JButton jDecbutton;
 	public JLabel jLabel1;
 	public JLabel jLabel2;
+
+	public Color textFieldEnableBorderColor = Color.blue;
+	public Color textFieldDisableBorderColor = Color.gray;
 
 
 	public final String[] encryptType = new String[]{
@@ -199,7 +201,7 @@ public class EncryptUIHandler implements UIHandler {
 //		StringBuilder text = new StringBuilder();
 //		text.append("1. 解密时默认加密数据为Base64");
 //		text.append("1. 解密时默认输出数据为Base64编码");
-//		PromptSupport.setPrompt(text.toString(),inputTextarea);
+//		UiUtils.setPrompt(text.toString(),inputTextarea);
 		return inputTextarea;
 	}
 
@@ -235,8 +237,9 @@ public class EncryptUIHandler implements UIHandler {
 		textField.setPreferredSize(preferredSize);
 		textField.setSize(10,10);
 
-		textField.setDisabledTextColor(Color.BLACK);
-
+//		textField.setDisabledTextColor(Color.BLACK);
+		// 设置边框颜色
+//		textField.setBorder(BorderFactory.createLineBorder(Color.BLUE));
 		return textField;
 	}
 	// 加密方式下拉列表
@@ -267,28 +270,55 @@ public class EncryptUIHandler implements UIHandler {
 				try {
 					switch (option){
 						case "MD5":
+							jTextFieldOne.setText("");
+							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(false);
 							jTextFieldTwo.setEnabled(false);
 							jDecbutton.setEnabled(false);
+
+//							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
+//							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
+
+
+							UiUtils.setPrompt("",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
+
+
+
 							break;
 						case "AES/ECB/PKCS5Padding":
+							jTextFieldOne.setText("");
+
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(false);
+//							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
+//							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
 							jDecbutton.setEnabled(true);
-							PromptSupport.setPrompt("密钥",jTextFieldOne);
+							UiUtils.setPrompt("  密钥",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
+
 							break;
 						case "AES/CBC/PKCS5Padding":
+//							jTextFieldOne.setText("");
+//							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(true);
+//							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
+//							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
 							jDecbutton.setEnabled(true);
-							PromptSupport.setPrompt("密钥",jTextFieldOne);
-							PromptSupport.setPrompt("IV",jTextFieldTwo);
+							UiUtils.setPrompt("  密钥",jTextFieldOne);
+							UiUtils.setPrompt("  IV",jTextFieldTwo);
 							break;
 						case "DES/ECB/PKCS5Padding":
+							jTextFieldOne.setText("");
+
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(false);
 							jDecbutton.setEnabled(true);
-							PromptSupport.setPrompt("密钥",jTextFieldOne);
+//							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
+//							jTextFieldTwo.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldDisableBorderColor));
+							UiUtils.setPrompt("  密钥",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
 							break;
 						default:
 							break;
@@ -342,24 +372,24 @@ public class EncryptUIHandler implements UIHandler {
 						switch (option){
 							case "MD5":
 								if (!inputJTextArea.getText().equals("")){
-									outputJTextarea.setText(EncUtils.md5(inputJTextArea.getText()));
+									result = EncUtils.md5(inputJTextArea.getText());
 								}
 								break;
 							case "AES/ECB/PKCS5Padding":
-								AesUtil.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
+								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
-								result = new String(EncUtils.b64encode(AesUtil.encryptByECB(data,key)));
+								result = new String(EncUtils.b64encode(AesUtils.encryptByECB(data,key)));
 								outputJTextarea.setText(result);
 								break;
 							case "AES/CBC/PKCS5Padding":
-								AesUtil.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
+								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 								byte[] IV = jTextFieldTwo.getText().getBytes();
-								result = new String(EncUtils.b64encode(AesUtil.encryptByCBC(data,key,IV)));
+								result = new String(EncUtils.b64encode(AesUtils.encryptByCBC(data,key,IV)));
 
 								break;
 							case "DES/ECB/PKCS5Padding":
@@ -367,7 +397,7 @@ public class EncryptUIHandler implements UIHandler {
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 
-								result = new String(EncUtils.b64encode(DesUtil.encrypt(data,key)));
+								result = new String(EncUtils.b64encode(DesUtils.encrypt(data,key)));
 								break;
 							default:
 								break;
@@ -411,19 +441,19 @@ public class EncryptUIHandler implements UIHandler {
 							case "MD5":
 								break;
 							case "AES/ECB/PKCS5Padding":
-								AesUtil.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
+								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = EncUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
-								result = new String(AesUtil.decryptByECB(data,key));
+								result = new String(AesUtils.decryptByECB(data,key));
 								break;
 							case "AES/CBC/PKCS5Padding":
-								AesUtil.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
+								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = EncUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 								byte[] IV = jTextFieldTwo.getText().getBytes();
-								result = new String(AesUtil.decryptByCBC(data,key,IV));
+								result = new String(AesUtils.decryptByCBC(data,key,IV));
 
 								break;
 							case "DES/ECB/PKCS5Padding":
@@ -431,7 +461,7 @@ public class EncryptUIHandler implements UIHandler {
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 
-								result = new String(DesUtil.decrypt(data,key));
+								result = new String(DesUtils.decrypt(data,key));
 								break;
 							default:
 								break;

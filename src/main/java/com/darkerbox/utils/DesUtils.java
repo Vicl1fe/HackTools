@@ -11,7 +11,7 @@ import java.security.SecureRandom;
  * @version V1.0
  * @date 2018-06-07 22:13
  */
-public class DesUtil {
+public class DesUtils {
 
 	private static final String ALGORITHM = "DES";
 	/**

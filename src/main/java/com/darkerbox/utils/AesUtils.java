@@ -5,7 +5,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -16,7 +15,7 @@ import java.security.SecureRandom;
  * @author: Alian
  * @create: 2021-06-05 09:20:10
  **/
-public class AesUtil {
+public class AesUtils {
 
 	private static final String ALGORITHM = "AES";
 	public static String AES_CBC_PADDING = "AES/CBC/PKCS5Padding";//AES/CBC/PKCS7Padding

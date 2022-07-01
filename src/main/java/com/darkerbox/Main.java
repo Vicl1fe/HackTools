@@ -19,8 +19,8 @@ public class Main implements ITab {
 
 	public List<String> init(){
 		List<String> UiList = new ArrayList<String>();
-		UiList.add("com.darkerbox.hacktools.dfquery.DfqueryUIHandler");
 		UiList.add("com.darkerbox.hacktools.Encrypt.EncryptUIHandler");
+		UiList.add("com.darkerbox.hacktools.dfquery.DfqueryUIHandler");
 		UiList.add("com.darkerbox.hacktools.texttools.TextToolsUIHandler");
 		return UiList;
 	}
