@@ -26,5 +26,5 @@
 
 
 
-# 参考
+# 致谢
 - https://github.com/TideSec/Decrypt_Weblogic_Password
