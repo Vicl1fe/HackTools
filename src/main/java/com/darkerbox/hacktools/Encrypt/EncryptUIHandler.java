@@ -5,7 +5,7 @@ import com.alibaba.druid.filter.config.ConfigTools;
 import com.darkerbox.hacktools.UIHandler;
 import com.darkerbox.utils.AesUtils;
 import com.darkerbox.utils.DesUtils;
-import com.darkerbox.utils.EncUtils;
+import com.darkerbox.utils.CommonUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +16,7 @@ import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.security.Provider;
 import java.security.Security;
+import java.util.ArrayList;
 
 import com.darkerbox.utils.UiUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -44,6 +45,7 @@ public class EncryptUIHandler implements UIHandler {
 			"MD5",
 			"Weblogic",
 			"Druid",
+			"Xshell",
 			"AES/ECB/PKCS5Padding",
 			"AES/CBC/PKCS5Padding",
 			"DES/ECB/PKCS5Padding",
@@ -310,6 +312,16 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
+						case "Xshell":
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setEnabled(true);
+							jTextFieldTwo.setEnabled(true);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							UiUtils.setPrompt(" xsh文件绝对路径",jTextFieldOne);
+							UiUtils.setPrompt(" 用户名:SID",jTextFieldTwo);
+
+							break;
 						case "AES/ECB/PKCS5Padding":
 							jTextFieldOne.setText("");
 
@@ -397,32 +409,32 @@ public class EncryptUIHandler implements UIHandler {
 						switch (option){
 							case "MD5":
 								if (!inputJTextArea.getText().equals("")){
-									result = EncUtils.md5(inputJTextArea.getText());
+									result = CommonUtils.md5(inputJTextArea.getText());
 								}
 								break;
 							case "AES/ECB/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
-								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
-								result = new String(EncUtils.b64encode(AesUtils.encryptByECB(data,key)));
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								result = new String(CommonUtils.b64encode(AesUtils.encryptByECB(data,key)));
 								outputJTextarea.setText(result);
 								break;
 							case "AES/CBC/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
-								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 								byte[] IV = jTextFieldTwo.getText().getBytes();
-								result = new String(EncUtils.b64encode(AesUtils.encryptByCBC(data,key,IV)));
+								result = new String(CommonUtils.b64encode(AesUtils.encryptByCBC(data,key,IV)));
 
 								break;
 							case "DES/ECB/PKCS5Padding":
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
-								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 
-								result = new String(EncUtils.b64encode(DesUtils.encrypt(data,key)));
+								result = new String(CommonUtils.b64encode(DesUtils.encrypt(data,key)));
 								break;
 							default:
 								break;
@@ -457,7 +469,7 @@ public class EncryptUIHandler implements UIHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String option = jEncryptComboBox.getSelectedItem().toString();
-				if (!inputJTextArea.getText().equals("")){
+				if (!inputJTextArea.getText().equals("") || option.equals("Xshell")){
 					try {
 						byte[] data;
 						byte[] key;
@@ -488,26 +500,62 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
 								break;
+							case "Xshell":
+								String xshpath = jTextFieldOne.getText().trim();
+								String temp = jTextFieldTwo.getText().trim();
+								int op = temp.indexOf(":");
+
+								String username = "";
+								String sid = "";
+								// 判断是否输入用户名
+								if (op != -1){
+									username = temp.substring(0,op);
+									sid = temp.substring(op+1);
+								}else{
+									username = "";
+									sid = temp;
+								}
+
+
+								ArrayList<XshellResult> results = new XshellDecrypt(xshpath,username,sid).Xdecrypt();
+								result = "";
+								result += "[*] Your Input Username && SID\n";
+								result += "    Username: "+username+"\n";
+								result += "    Sid: "+sid+"\n";
+								result += "[*] Start Decrypt.."+"\n";
+								result += "\n";
+								for (int i = 0; i < results.size(); i++) {
+									result += "[+] XSHPath: "+results.get(i).getXshellpath()+"\n";
+									result += "  Host: "+results.get(i).getHost()+"\n";
+									result += "  Username: "+results.get(i).getUsername()+"\n";
+									result += "  Password: "+results.get(i).getPassword()+"\n";
+									result += "  Version: "+results.get(i).getVersion()+"\n";
+									result += "\n\n";
+								}
+								result += "[*] Decrypt End"+"\n";
+								result += "\n";
+								result += "PS: 本地只测试过Xshell5，如果有其他问题，希望可以提ISSUES";
+								break;
 							case "AES/ECB/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
-								data = EncUtils.b64decode(inputJTextArea.getText().trim());
+								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
-								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 								result = new String(AesUtils.decryptByECB(data,key));
 								break;
 							case "AES/CBC/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
-								data = EncUtils.b64decode(inputJTextArea.getText().trim());
+								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
-								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 								byte[] IV = jTextFieldTwo.getText().getBytes();
 								result = new String(AesUtils.decryptByCBC(data,key,IV));
 
 								break;
 							case "DES/ECB/PKCS5Padding":
-								data = EncUtils.b64decode(inputJTextArea.getText().trim());
+								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
-								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")?EncUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 
 								result = new String(DesUtils.decrypt(data,key));
 								break;
@@ -558,5 +606,9 @@ public class EncryptUIHandler implements UIHandler {
 
 
 		return label;
+	}
+
+	public void ErrorOuput(String t) throws Exception{
+		callbacks.getStderr().write(t.getBytes());
 	}
 }

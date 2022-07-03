@@ -3,15 +3,7 @@ package com.darkerbox.hacktools.Encrypt;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.spec.InvalidKeySpecException;
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -19,13 +11,12 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import burp.IBurpExtenderCallbacks;
-import com.darkerbox.utils.EncUtils;
+import com.darkerbox.utils.CommonUtils;
 import sun.misc.BASE64Decoder;
 
 public class WeblogicDecrypt {
 	public static String decryptAES(String SerializedSystemIni, String ciphertext) throws Exception {
-		byte[] encryptedPassword1 = EncUtils.b64decode(ciphertext);
+		byte[] encryptedPassword1 = CommonUtils.b64decode(ciphertext);
 		byte[] salt = null;
 		byte[] encryptionKey = null;
 		String key = "0xccb97558940b82637c8bec3c770f86fa3a391a56";
