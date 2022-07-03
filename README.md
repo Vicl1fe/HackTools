@@ -3,11 +3,10 @@
 
 ## 功能
 ### 加解密
-- 目前支持AES、DES、MD5(只有加密)、Weblogic、Druid、Xshell
+- 目前支持AES、DES、MD5(只有加密)、Weblogic、Druid
 - 加密时默认输出为Base64编码
 - 解密时默认输入为Base64编码
 - 密钥的编码可选择编码方式(BASE64、TEXT)
-- Xshell、Druid等输入的时候一定要选择密钥编码方式为TEXT
 
 ### 杀软查询
 - 集成了市面上常见的杀软和程序
@@ -27,6 +26,5 @@
 
 
 
-# 致谢
+# 参考
 - https://github.com/TideSec/Decrypt_Weblogic_Password
-- https://github.com/JDArmy/SharpXDecrypt
