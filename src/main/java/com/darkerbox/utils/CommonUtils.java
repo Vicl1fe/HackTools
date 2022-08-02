@@ -2,10 +2,7 @@ package com.darkerbox.utils;
 
 import org.apache.commons.codec.binary.Hex;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -18,6 +15,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class CommonUtils {
     public static byte[] b64encode(byte[] plain){
@@ -85,6 +84,25 @@ public class CommonUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static byte[] gzipD(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return null;
+        }
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+        try {
+            GZIPInputStream ungzip = new GZIPInputStream(in);
+            byte[] buffer = new byte[256];
+            int n;
+            while ((n = ungzip.read(buffer)) >= 0) {
+                out.write(buffer, 0, n);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return out.toByteArray();
     }
 
 }

@@ -15,6 +15,15 @@ import java.util.List;
 * Xshell7.0以上 的密钥为用户名先反转字节，然后加上SID，然后再进行字节翻转，然后进行sha256加密。
 * */
 
+/*
+* xshell7:    C:\Users\%username%\Documents\NetSarang Computer\7\Xshell\Sessions
+xshell6:    C:\Users\%username%\Documents\NetSarang Computer\6\Xshell\Sessions
+XShell5:  %userprofile%\Documents\NetSarang\Xshell\Sessions
+
+XFtp5:     %userprofile%\Documents\NetSarang\Xftp\Sessions
+XShell6:   %userprofile%\Documents\NetSarang Computer\6\Xshell\Sessions
+XFtp6:      %userprofile%\Documents\NetSarang Computer\6\Xftp\Sessions
+* */
 
 public class XshellDecrypt {
 	private String xshPathdir;

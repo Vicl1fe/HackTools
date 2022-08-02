@@ -13,6 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Provider;
 import java.security.Security;
@@ -36,6 +39,7 @@ public class EncryptUIHandler implements UIHandler {
 	public JButton jDecbutton;
 	public JLabel jLabel1;
 	public JLabel jLabel2;
+	public JRadioButton jsaveFileRadioButton;
 
 	public Color textFieldEnableBorderColor = Color.blue;
 	public Color textFieldDisableBorderColor = Color.gray;
@@ -45,7 +49,9 @@ public class EncryptUIHandler implements UIHandler {
 			"MD5",
 			"Weblogic",
 			"Druid",
+			"BASE64",
 			"Xshell",
+			"Godzilla",
 			"AES/ECB/PKCS5Padding",
 			"AES/CBC/PKCS5Padding",
 			"DES/ECB/PKCS5Padding",
@@ -86,6 +92,7 @@ public class EncryptUIHandler implements UIHandler {
 		jDecbutton = getDecryptButton();
 		jEncryptComboBox = getEncryptJComboBox();
 		jEncodeComboBox = getEncodeJComboBox();
+		jsaveFileRadioButton = getSaveFileRadioButton();
 
 		GridBagConstraints constraints=new GridBagConstraints();
 		// BOTH使组件完全填充该区域
@@ -180,6 +187,17 @@ public class EncryptUIHandler implements UIHandler {
 		mainPanel.add(jTextFieldTwo,constraints);
 		constraints.insets = new Insets(0, 0, 0, 0);
 
+		constraints.gridx = 4;
+		constraints.gridy = 2;
+		constraints.gridwidth = 1;
+		constraints.gridheight = 1;
+		constraints.weightx = 0;
+		constraints.weighty = 0;
+//
+		constraints.insets = new Insets(0, 610, 0, 0);
+		mainPanel.add(jsaveFileRadioButton,constraints);
+		constraints.insets = new Insets(0, 0, 0, 0);
+
 		constraints.gridx = 0;
 		constraints.gridy = 3;
 		constraints.gridwidth = 6;
@@ -188,6 +206,9 @@ public class EncryptUIHandler implements UIHandler {
 		constraints.weighty = 0;
 //		constraints.insets = new Insets(0, 0, 5, 5);
 		mainPanel.add(new JScrollPane(outputJTextarea),constraints);
+
+
+
 
 		return mainPanel;
 	}
@@ -302,6 +323,13 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
+						case "BASE64":
+							jTextFieldOne.setEnabled(false);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(true);
+							jDecbutton.setEnabled(true);
+
+							break;
 						case "Druid":
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
@@ -321,6 +349,15 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt(" xsh文件绝对路径",jTextFieldOne);
 							UiUtils.setPrompt(" 用户名:SID",jTextFieldTwo);
 
+							break;
+						case "Godzilla":
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setEnabled(true);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							UiUtils.setPrompt(" key的MD5值前16位",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
 							break;
 						case "AES/ECB/PKCS5Padding":
 							jTextFieldOne.setText("");
@@ -412,6 +449,10 @@ public class EncryptUIHandler implements UIHandler {
 									result = CommonUtils.md5(inputJTextArea.getText());
 								}
 								break;
+							case "BASE64":
+
+								result = new String(CommonUtils.b64encode(inputJTextArea.getText().getBytes()));
+								break;
 							case "AES/ECB/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
@@ -500,6 +541,9 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
 								break;
+							case "BASE64":
+								result = output(CommonUtils.b64decode(inputJTextArea.getText()));
+								break;
 							case "Xshell":
 								String xshpath = jTextFieldOne.getText().trim();
 								String temp = jTextFieldTwo.getText().trim();
@@ -536,12 +580,24 @@ public class EncryptUIHandler implements UIHandler {
 								result += "\n";
 								result += "PS: 本地只测试过Xshell5，如果有其他问题，希望可以提ISSUES";
 								break;
+							case "Godzilla":
+								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
+								String temp2  = inputJTextArea.getText().trim().substring(16);
+								temp2 = temp2.substring(0,temp2.length()-16);
+								data = CommonUtils.b64decode(temp2);
+								// 判断key的加密方式是文本还是base64编码的
+								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
+								AesUtils.decryptByECB(data,key);
+								result = output(CommonUtils.gzipD(AesUtils.decryptByECB(data,key)));
+//								result = new String(CommonUtils.gzipD(AesUtils.decryptByECB(data,key)));
+								break;
 							case "AES/ECB/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
-								result = new String(AesUtils.decryptByECB(data,key));
+								result = output(AesUtils.decryptByECB(data,key));
+//								result = new String(AesUtils.decryptByECB(data,key));
 								break;
 							case "AES/CBC/PKCS5Padding":
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
@@ -549,6 +605,7 @@ public class EncryptUIHandler implements UIHandler {
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
 								byte[] IV = jTextFieldTwo.getText().getBytes();
+
 								result = new String(AesUtils.decryptByCBC(data,key,IV));
 
 								break;
@@ -608,7 +665,31 @@ public class EncryptUIHandler implements UIHandler {
 		return label;
 	}
 
+	// 保存到文件单选按钮
+	public JRadioButton getSaveFileRadioButton(){
+		JRadioButton radioBtn01 = new JRadioButton("将结果保存到文件");
+		Dimension preferredSize = new Dimension(1,30);
+		radioBtn01.setPreferredSize(preferredSize);
+		radioBtn01.setSelected(false);
+		return radioBtn01;
+	}
+
 	public void ErrorOuput(String t) throws Exception{
 		callbacks.getStderr().write(t.getBytes());
 	}
+
+	public String output(byte[] result) throws Exception {
+		if (jsaveFileRadioButton.isSelected()){
+			JFileChooser fileChooser = new JFileChooser();
+			int option = fileChooser.showSaveDialog(new Frame());
+			if(option == JFileChooser.APPROVE_OPTION){
+				File file = fileChooser.getSelectedFile();
+				FileOutputStream outputStream =  new FileOutputStream(file);
+				outputStream.write(result);
+				outputStream.close();
+			}
+		}
+		return new String(result);
+	}
+
 }

@@ -3,6 +3,7 @@
 
 ## 功能
 ### 加解密
+- 新增Base64编码输出到文件、Godzilla解密、AES输出到文件，目前只把保存文件功能添加到了BASE64和AES/CBC，感觉其他的用不着(20220802)
 - 目前支持AES、DES、MD5(只有加密)、Weblogic、Druid、XShell
 - 加密时默认输出为Base64编码
 - 解密时默认输入为Base64编码
