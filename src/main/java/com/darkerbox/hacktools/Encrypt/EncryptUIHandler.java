@@ -194,7 +194,7 @@ public class EncryptUIHandler implements UIHandler {
 		constraints.weightx = 0;
 		constraints.weighty = 0;
 //
-		constraints.insets = new Insets(0, 610, 0, 0);
+		constraints.insets = new Insets(0, 800, 0, 0);
 		mainPanel.add(jsaveFileRadioButton,constraints);
 		constraints.insets = new Insets(0, 0, 0, 0);
 
@@ -251,7 +251,7 @@ public class EncryptUIHandler implements UIHandler {
 		JTextField textField = new JTextField();
 
 		// 设置大小
-		Dimension preferredSize = new Dimension(200,30);
+		Dimension preferredSize = new Dimension(150,30);
 		textField.setPreferredSize(preferredSize);
 		textField.setSize(10,10);
 
@@ -285,20 +285,26 @@ public class EncryptUIHandler implements UIHandler {
 		jTextFieldTwo.setEnabled(false);
 		jDecbutton.setEnabled(false);
 
-		for (int i = 0; i < encryptType.length; i++) {
-			comboBox.addItem(encryptType[i]);
+//		for (int i = 0; i < encryptType.length; i++) {
+//			comboBox.addItem(encryptType[i]);
+//		}
+		for (EncType encType: EncType.values()){
+			comboBox.addItem(encType.toString());
 		}
+
 
 		comboBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				int index = comboBox.getSelectedIndex();
 				// 获取当前选中的字符串
-				String option = comboBox.getSelectedItem().toString();
+//				String option = comboBox.getSelectedItem().toString();
+				// 转换为枚举类型
+				EncType option = EncType.valueOf(comboBox.getSelectedItem().toString());
 
 				try {
 					switch (option){
-						case "MD5":
+						case Md5:
 							jTextFieldOne.setText("");
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(false);
@@ -313,7 +319,7 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt("",jTextFieldTwo);
 							
 							break;
-						case "Weblogic":
+						case Weblogic:
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(false);
@@ -323,14 +329,14 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
-						case "BASE64":
+						case BASE64:
 							jTextFieldOne.setEnabled(false);
 							jTextFieldTwo.setEnabled(false);
 							jEncbutton.setEnabled(true);
 							jDecbutton.setEnabled(true);
 
 							break;
-						case "Druid":
+						case Druid:
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(false);
@@ -340,7 +346,7 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
-						case "Xshell":
+						case Xshell:
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(true);
@@ -350,7 +356,7 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt(" 用户名:SID",jTextFieldTwo);
 
 							break;
-						case "Godzilla":
+						case Godzilla:
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(false);
@@ -359,7 +365,17 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt(" key的MD5值前16位",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
 							break;
-						case "AES/ECB/PKCS5Padding":
+						case Landray:
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setEnabled(true);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							jTextFieldOne.setText("kmssAdminKey");
+							UiUtils.setPrompt(" kmssAdminKey",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
+							break;
+						case Aes_ECB:
 							jTextFieldOne.setText("");
 
 							jTextFieldOne.setEnabled(true);
@@ -372,7 +388,7 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt("",jTextFieldTwo);
 
 							break;
-						case "AES/CBC/PKCS5Padding":
+						case Aes_CBC:
 							jTextFieldOne.setEnabled(true);
 							jTextFieldTwo.setEnabled(true);
 //							jTextFieldOne.setBorder(javax.swing.BorderFactory.createLineBorder(textFieldEnableBorderColor));
@@ -382,7 +398,7 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt(" 密钥",jTextFieldOne);
 							UiUtils.setPrompt(" IV",jTextFieldTwo);
 							break;
-						case "DES/ECB/PKCS5Padding":
+						case Des_ECB:
 							jTextFieldOne.setText("");
 
 							jTextFieldOne.setEnabled(true);
@@ -437,23 +453,24 @@ public class EncryptUIHandler implements UIHandler {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String option = jEncryptComboBox.getSelectedItem().toString();
+
+				EncType option = EncType.valueOf(jEncryptComboBox.getSelectedItem().toString());
 				if (!inputJTextArea.getText().equals("")){
 					try {
 						byte[] data;
 						byte[] key;
 						String result = null;
 						switch (option){
-							case "MD5":
+							case Md5:
 								if (!inputJTextArea.getText().equals("")){
 									result = CommonUtils.md5(inputJTextArea.getText());
 								}
 								break;
-							case "BASE64":
+							case BASE64:
 
 								result = new String(CommonUtils.b64encode(inputJTextArea.getText().getBytes()));
 								break;
-							case "AES/ECB/PKCS5Padding":
+							case Aes_ECB:
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
@@ -461,7 +478,7 @@ public class EncryptUIHandler implements UIHandler {
 								result = new String(CommonUtils.b64encode(AesUtils.encryptByECB(data,key)));
 								outputJTextarea.setText(result);
 								break;
-							case "AES/CBC/PKCS5Padding":
+							case Aes_CBC:
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
@@ -470,7 +487,7 @@ public class EncryptUIHandler implements UIHandler {
 								result = new String(CommonUtils.b64encode(AesUtils.encryptByCBC(data,key,IV)));
 
 								break;
-							case "DES/ECB/PKCS5Padding":
+							case Des_ECB:
 								data = inputJTextArea.getText().trim().getBytes();
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
@@ -509,16 +526,18 @@ public class EncryptUIHandler implements UIHandler {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String option = jEncryptComboBox.getSelectedItem().toString();
-				if (!inputJTextArea.getText().equals("") || option.equals("Xshell")){
+
+				EncType option = EncType.valueOf(jEncryptComboBox.getSelectedItem().toString());
+				// Xshell的
+				if (!inputJTextArea.getText().equals("") || option.equals(EncType.Xshell.toString())){
 					try {
 						byte[] data;
 						byte[] key;
 						String result = null;
 						switch (option){
-							case "MD5":
+							case Md5:
 								break;
-							case "Weblogic":
+							case Weblogic:
 								String datPath = jTextFieldOne.getText().trim();
 								String encryptText = inputJTextArea.getText().trim();
 
@@ -536,15 +555,15 @@ public class EncryptUIHandler implements UIHandler {
 									result = "密文输入错误";
 								}
 								break;
-							case "Druid":
+							case Druid:
 								String publickey = jTextFieldOne.getText().trim();
 
 								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
 								break;
-							case "BASE64":
+							case BASE64:
 								result = output(CommonUtils.b64decode(inputJTextArea.getText()));
 								break;
-							case "Xshell":
+							case Xshell:
 								String xshpath = jTextFieldOne.getText().trim();
 								String temp = jTextFieldTwo.getText().trim();
 								int op = temp.indexOf(":");
@@ -580,7 +599,7 @@ public class EncryptUIHandler implements UIHandler {
 								result += "\n";
 								result += "PS: 本地只测试过Xshell5，如果有其他问题，希望可以提ISSUES";
 								break;
-							case "Godzilla":
+							case Godzilla:
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								String temp2  = inputJTextArea.getText().trim().substring(16);
 								temp2 = temp2.substring(0,temp2.length()-16);
@@ -591,7 +610,7 @@ public class EncryptUIHandler implements UIHandler {
 								result = output(CommonUtils.gzipD(AesUtils.decryptByECB(data,key)));
 //								result = new String(CommonUtils.gzipD(AesUtils.decryptByECB(data,key)));
 								break;
-							case "AES/ECB/PKCS5Padding":
+							case Aes_ECB:
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
@@ -599,7 +618,7 @@ public class EncryptUIHandler implements UIHandler {
 								result = output(AesUtils.decryptByECB(data,key));
 //								result = new String(AesUtils.decryptByECB(data,key));
 								break;
-							case "AES/CBC/PKCS5Padding":
+							case Aes_CBC:
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
@@ -609,7 +628,8 @@ public class EncryptUIHandler implements UIHandler {
 								result = new String(AesUtils.decryptByCBC(data,key,IV));
 
 								break;
-							case "DES/ECB/PKCS5Padding":
+							case Landray:
+							case Des_ECB:
 								data = CommonUtils.b64decode(inputJTextArea.getText().trim());
 								// 判断key的加密方式是文本还是base64编码的
 								key = jEncodeComboBox.getSelectedItem().toString().equals("BASE64")? CommonUtils.b64decode(jTextFieldOne.getText().trim()):jTextFieldOne.getText().trim().getBytes();
@@ -692,4 +712,24 @@ public class EncryptUIHandler implements UIHandler {
 		return new String(result);
 	}
 
+
+	public enum EncType
+	{
+		Md5,
+		Weblogic,
+		Druid,
+		BASE64,
+		Xshell,
+		Godzilla,
+		Aes_ECB,// AES/ECB/PKCS5Padding
+		Aes_CBC,// AES/CBC/PKCS5Padding
+		Des_ECB,// DES/ECB/PKCS5Padding
+		Landray,
+	}
+
+	public static void main(String[] args) {
+
+		EncType a = EncType.valueOf("Md5");
+		System.out.printf(a.toString());
+	}
 }
