@@ -3,6 +3,8 @@ package com.darkerbox.hacktools.Encrypt;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Provider;
+import java.security.Security;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -12,7 +14,7 @@ import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.darkerbox.utils.CommonUtils;
-import sun.misc.BASE64Decoder;
+import com.darkerbox.utils.Utils;
 
 public class WeblogicDecrypt {
 	public static String decryptAES(String SerializedSystemIni, String ciphertext) throws Exception {
@@ -30,7 +32,14 @@ public class WeblogicDecrypt {
 			if (version >= 2)
 				encryptionKey = readBytes(is);
 		}
-		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWITHSHAAND128BITRC2-CBC");
+
+		Class cryptoClass = Class.forName("com.sun.crypto.provider.SunJCE");
+		Provider SunCrypto = (Provider) cryptoClass.newInstance();
+		Security.insertProviderAt(SunCrypto, 1);
+		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWITHSHAAND128BITRC2-CBC","SunJCE");
+
+
+//		SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBEWITHSHAAND128BITRC2-CBC");
 		PBEKeySpec pbeKeySpec = new PBEKeySpec(password, salt, 5);
 		SecretKey secretKey = keyFactory.generateSecret(pbeKeySpec);
 		PBEParameterSpec pbeParameterSpec = new PBEParameterSpec(salt, 0);
@@ -50,7 +59,7 @@ public class WeblogicDecrypt {
 	}
 
 	public static String decrypt3DES(String SerializedSystemIni, String ciphertext) throws Exception {
-		byte[] encryptedPassword1 = (new BASE64Decoder()).decodeBuffer(ciphertext);
+		byte[] encryptedPassword1 = Utils.b64decode(ciphertext);
 		byte[] salt = null;
 		byte[] encryptionKey = null;
 		String PW = "0xccb97558940b82637c8bec3c770f86fa3a391a56";

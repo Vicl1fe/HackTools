@@ -18,7 +18,8 @@ import java.security.SecureRandom;
 public class AesUtils {
 
 	private static final String ALGORITHM = "AES";
-	public static String AES_CBC_PADDING = "AES/CBC/PKCS5Padding";//AES/CBC/PKCS7Padding
+	public static String AES_CBC_PADDING5 = "AES/CBC/PKCS5Padding";//AES/CBC/PKCS7Padding
+	public static String AES_CBC_PADDING7 = "AES/CBC/PKCS5Padding";//AES/CBC/PKCS7Padding
 	public static String AES_ECB_PADDING = "AES/ECB/PKCS5Padding";//AES/ECB/PKCS7Padding
 
 	/**
@@ -56,7 +57,7 @@ public class AesUtils {
 		//获取SecretKey对象,也可以使用getSecretKey()方法
 		Key secretKey = new SecretKeySpec(key, ALGORITHM);
 		//获取指定转换的密码对象Cipher（参数：算法/工作模式/填充模式）
-		Cipher cipher = Cipher.getInstance(AES_CBC_PADDING);
+		Cipher cipher = Cipher.getInstance(AES_CBC_PADDING5);
 		//创建向量参数规范也就是初始化向量
 		IvParameterSpec ips = new IvParameterSpec(keyIv);
 		//用密钥和一组算法参数规范初始化此Cipher对象（加密模式）
@@ -79,7 +80,7 @@ public class AesUtils {
 		//获取SecretKey对象,也可以使用getSecretKey()方法
 		Key secretKey = new SecretKeySpec(key, ALGORITHM);
 		//获取指定转换的密码对象Cipher（参数：算法/工作模式/填充模式）
-		Cipher cipher = Cipher.getInstance(AES_CBC_PADDING);
+		Cipher cipher = Cipher.getInstance(AES_CBC_PADDING5);
 		//创建向量参数规范也就是初始化向量
 		IvParameterSpec ips = new IvParameterSpec(keyIv);
 		//用密钥和一组算法参数规范初始化此Cipher对象（加密模式）

@@ -131,6 +131,7 @@ public class TextToolsUIHandler implements UIHandler {
 	public JTextArea getOutputJTextArea() {
 		JTextArea outputTextarea = new JTextArea();
 
+
 		// 设置自动换行
 		outputTextarea.setLineWrap(true);
 		// 设置大小

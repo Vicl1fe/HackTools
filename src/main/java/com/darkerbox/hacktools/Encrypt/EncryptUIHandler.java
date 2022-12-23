@@ -49,7 +49,9 @@ public class EncryptUIHandler implements UIHandler {
 			"MD5",
 			"Weblogic",
 			"Druid",
+			"Unicode_CN",
 			"BASE64",
+			"BASE32",
 			"Xshell",
 			"Godzilla",
 			"AES/ECB/PKCS5Padding",
@@ -221,6 +223,8 @@ public class EncryptUIHandler implements UIHandler {
 	public JTextArea getInputJTextArea() {
 		JTextArea inputTextarea = new JTextArea();
 
+		// 设置字体大小
+		inputTextarea.setFont(UiUtils.getSerifFont());
 		// 设置自动换行
 		inputTextarea.setLineWrap(true);
 		// 设置大小
@@ -237,6 +241,8 @@ public class EncryptUIHandler implements UIHandler {
 	public JTextArea getOutputJTextArea() {
 		JTextArea outputTextarea = new JTextArea();
 
+		// 设置字体大小
+		outputTextarea.setFont(UiUtils.getSerifFont());
 		// 设置自动换行
 		outputTextarea.setLineWrap(true);
 		// 设置大小
@@ -330,6 +336,20 @@ public class EncryptUIHandler implements UIHandler {
 
 							break;
 						case BASE64:
+							jTextFieldOne.setEnabled(false);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(true);
+							jDecbutton.setEnabled(true);
+
+							break;
+						case BASE32:
+							jTextFieldOne.setEnabled(false);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(true);
+							jDecbutton.setEnabled(true);
+
+							break;
+						case Unicode_CN:
 							jTextFieldOne.setEnabled(false);
 							jTextFieldTwo.setEnabled(false);
 							jEncbutton.setEnabled(true);
@@ -470,6 +490,14 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = new String(CommonUtils.b64encode(inputJTextArea.getText().getBytes()));
 								break;
+							case BASE32:
+
+								result = new String(CommonUtils.b32encode(inputJTextArea.getText().getBytes()));
+								break;
+
+							case Unicode_CN:
+								result = CommonUtils.Cn2Unicode(inputJTextArea.getText());
+								break;
 							case Aes_ECB:
 								AesUtils.AES_ECB_PADDING = "AES/ECB/PKCS5Padding";
 								data = inputJTextArea.getText().trim().getBytes();
@@ -562,6 +590,13 @@ public class EncryptUIHandler implements UIHandler {
 								break;
 							case BASE64:
 								result = output(CommonUtils.b64decode(inputJTextArea.getText()));
+								break;
+							case BASE32:
+
+								result = new String(CommonUtils.b32decode(inputJTextArea.getText().getBytes()));
+								break;
+							case Unicode_CN:
+								result = CommonUtils.unicode2Cn(inputJTextArea.getText());
 								break;
 							case Xshell:
 								String xshpath = jTextFieldOne.getText().trim();
@@ -718,7 +753,9 @@ public class EncryptUIHandler implements UIHandler {
 		Md5,
 		Weblogic,
 		Druid,
+		Unicode_CN,
 		BASE64,
+		BASE32,
 		Xshell,
 		Godzilla,
 		Aes_ECB,// AES/ECB/PKCS5Padding

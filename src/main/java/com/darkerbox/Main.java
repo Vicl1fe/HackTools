@@ -22,6 +22,7 @@ public class Main implements ITab {
 		UiList.add("com.darkerbox.hacktools.Encrypt.EncryptUIHandler");
 		UiList.add("com.darkerbox.hacktools.dfquery.DfqueryUIHandler");
 		UiList.add("com.darkerbox.hacktools.texttools.TextToolsUIHandler");
+		UiList.add("com.darkerbox.hacktools.java.JavaToolHandler");
 		return UiList;
 	}
 
