@@ -2,6 +2,7 @@ package com.darkerbox.hacktools.Encrypt;
 
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
+// https://blog.csdn.net/Zack_tzh/article/details/112175232
 // 命令行解密：java -cp jasypt-1.9.2.jar org.jasypt.intf.cli.JasyptPBEStringDecryptionCLI input="<密文>" password=<key> algorithm=PBEWithMD5AndDES
 public class JasyptUtils {
 
