@@ -68,12 +68,12 @@ public class CommonUtils {
 
     }
 
-    public static String getFileContentReplace000(String path) throws Exception{
+    public static String getFileContent(String path) throws Exception{
         BufferedReader in = new BufferedReader(new FileReader(path));
         String str;
         StringBuilder temp = new StringBuilder();
         while ((str = in.readLine()) != null) {
-            temp.append(str.replaceAll("\u0000","")+"\n");
+            temp.append(str+"\n");
         }
         return temp.toString();
     }

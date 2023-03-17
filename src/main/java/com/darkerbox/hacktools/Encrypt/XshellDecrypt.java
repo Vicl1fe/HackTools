@@ -16,8 +16,7 @@ import java.util.List;
 * */
 
 /*
-*
-xshell7:    C:\Users\%username%\Documents\NetSarang Computer\7\Xshell\Sessions
+* xshell7:    C:\Users\%username%\Documents\NetSarang Computer\7\Xshell\Sessions
 xshell6:    C:\Users\%username%\Documents\NetSarang Computer\6\Xshell\Sessions
 XShell5:  %userprofile%\Documents\NetSarang\Xshell\Sessions
 
@@ -30,17 +29,15 @@ public class XshellDecrypt {
 	private String xshPathdir;
 	private String username;
 	private String sid;
-	public String result;
 
 	public XshellDecrypt(){
 
 	}
 
-	public XshellDecrypt(String xshPath,String username,String sid,String result){
+	public XshellDecrypt(String xshPath,String username,String sid){
 		this.xshPathdir = xshPath;
 		this.username = username;
 		this.sid = sid;
-		this.result = result;
 	}
 
 	public ArrayList<XshellResult> Xdecrypt() throws Exception {
@@ -51,40 +48,30 @@ public class XshellDecrypt {
 		// 获取目录下所有的文件
 		List<String> filelist = CommonUtils.listAllFile(new File(this.xshPathdir));
 		for (int i = 0; i < filelist.size(); i++) {
-			try {
-				if (filelist.get(i).endsWith(".xsh")){
-					String xshPath = this.xshPathdir+filelist.get(i);
-					// 解析xshell文件的信息
-					String[] xshinfo= XSHParser(xshPath);
-					// 解密Password
-					String realpassword = decrypt(xshinfo[2],xshinfo[3]);
-					results.add(new XshellResult(xshPath,xshinfo[0],xshinfo[1],realpassword,xshinfo[3],xshinfo[4]));
-				}
-			}catch (Exception e){
-				this.result += this.xshPathdir+filelist.get(i)+"出现错误\n";
-				continue;
+			if (filelist.get(i).endsWith(".xsh")){
+				String xshPath = this.xshPathdir+filelist.get(i);
+				// 解析xshell文件的信息
+				String[] xshinfo= XSHParser(xshPath);
+				// 解密Password
+				String realpassword = decrypt(xshinfo[2],xshinfo[3]);
+				results.add(new XshellResult(xshPath,xshinfo[0],xshinfo[1],realpassword,xshinfo[3]));
 			}
-
 		}
 		return results;
 	}
 
 	private String[] XSHParser(String xshPath) throws Exception{
-		String[] temp = new String[5];
-		String filecontent = CommonUtils.getFileContentReplace000(xshPath).trim();
-		temp[0] = CommonUtils.reCompile("[\n|\r\n]Host=(.*?)[\n|\r\n]",filecontent);
-		temp[1] = CommonUtils.reCompile("[\n|\r\n]UserName=(.*?)[\n|\r\n]",filecontent);
-		temp[2] = CommonUtils.reCompile("[\n|\r\n]Password=(.*?)[\n|\r\n]",filecontent);
-//		temp[3] = CommonUtils.reCompile("\\[SessionInfo\\][\n|\r\n]Version=(.*?)[\n|\r\n]",filecontent);
-//		temp[3] = CommonUtils.reCompile("\\[SessionInfo\\][\"\"|\n|\r\n|\n\n|]Version=(.*?)[\"\"|\n|\r\n|\n\n|]",filecontent);
-		temp[3] = CommonUtils.reCompile("[\n|\r\n]Version=(.*?)[\"\"|\n|\r\n|\n\n|]",filecontent);
-		temp[4] = CommonUtils.reCompile("[\n|\r\n]Port=(.*?)[\"\"|\n|\r\n|\n\n|]",filecontent);
+		String[] temp = new String[4];
+		String filecontent = CommonUtils.getFileContent(xshPath);
+		temp[0] = CommonUtils.reCompile("Host=(.*?)[\n|\r\n]",filecontent);
+		temp[1] = CommonUtils.reCompile("UserName=(.*?)[\n|\r\n]",filecontent);
+		temp[2] = CommonUtils.reCompile("Password=(.*?)[\n|\r\n]",filecontent);
+		temp[3] = CommonUtils.reCompile("\\[SessionInfo\\][\n|\r\n]Version=(.*?)[\n|\r\n]",filecontent);
 		return temp;
 	}
 
 	private String decrypt(String cryptPass,String version) throws Exception{
 		String password = null;
-
 		if (version.startsWith("5.0") || version.startsWith("4") || version.startsWith("3") || version.startsWith("2"))
 		{
 			byte[] data = CommonUtils.b64decode(cryptPass);;
@@ -118,6 +105,7 @@ public class XshellDecrypt {
 			String strkey2 = new String(reverse(strkey1.getBytes()));
 			byte[] data = CommonUtils.b64decode(cryptPass);
 			byte[] Key = CommonUtils.sha256(strkey2);
+			
 			byte[] passData = Arrays.copyOf(data,data.length - 0x20);
 			byte[] decrypted = Rc4Utils.RC4Base(passData, Key );
 			password = new String(decrypted);
@@ -159,15 +147,13 @@ class XshellResult{
 	public String username;
 	public String password;
 	public String version;
-	public String port;
 
-	public XshellResult(String xshellpath, String host, String username, String password, String version,String port) {
+	public XshellResult(String xshellpath, String host, String username, String password, String version) {
 		this.xshellpath = xshellpath;
 		this.host = host;
 		this.username = username;
 		this.password = password;
 		this.version = version;
-		this.port = port;
 	}
 
 	public String getXshellpath() {
@@ -176,10 +162,6 @@ class XshellResult{
 
 	public String getHost() {
 		return host;
-	}
-
-	public String getPort() {
-		return port;
 	}
 
 	public String getUsername() {
@@ -193,5 +175,4 @@ class XshellResult{
 	public String getVersion() {
 		return version;
 	}
-
 }

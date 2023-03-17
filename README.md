@@ -3,8 +3,6 @@
 
 ## 功能
 ### 加解密
-- 2023-02-17 新增jasypt解密功能
-- 2023-02-12 新增FindReport解密功能
 - 2022-12-23 新增base32编解码、Unicode中文互转
 - 新增Base64编码输出到文件、Godzilla解密、AES输出到文件，目前只把保存文件功能添加到了BASE64和AES/CBC，感觉其他的用不着(20220802)
 - 目前支持AES、DES、MD5(只有加密)、Weblogic、Druid、XShell

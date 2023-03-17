@@ -49,8 +49,6 @@ public class EncryptUIHandler implements UIHandler {
 			"MD5",
 			"Weblogic",
 			"Druid",
-			"Jasypt",
-			"FindReport",
 			"Unicode_CN",
 			"BASE64",
 			"BASE32",
@@ -364,20 +362,9 @@ public class EncryptUIHandler implements UIHandler {
 							jTextFieldTwo.setEnabled(false);
 							jEncbutton.setEnabled(false);
 							jDecbutton.setEnabled(true);
-							UiUtils.setPrompt(" 这里写公钥，密文写上面的输入框中",jTextFieldOne);
+							UiUtils.setPrompt(" 公钥",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
 
-							break;
-
-						case Jasypt:
-							jTextFieldOne.setText("");
-							jTextFieldTwo.setText("");
-							jTextFieldOne.setEnabled(true);
-							jTextFieldTwo.setEnabled(true);
-							jEncbutton.setEnabled(false);
-							jDecbutton.setEnabled(true);
-							UiUtils.setPrompt(" 加密方式 eg: PBEWithMD5AndDES",jTextFieldOne);
-							UiUtils.setPrompt(" 加密的密钥 eg: 82o2932DS43983AE",jTextFieldTwo);
 							break;
 						case Xshell:
 							jTextFieldTwo.setText("");
@@ -385,18 +372,8 @@ public class EncryptUIHandler implements UIHandler {
 							jTextFieldTwo.setEnabled(true);
 							jEncbutton.setEnabled(false);
 							jDecbutton.setEnabled(true);
-							UiUtils.setPrompt(" (上面的输入框无需填写)这里写xsh文件所在目录的绝对路径，不是文件路径",jTextFieldOne);
-							UiUtils.setPrompt(" 格式：username:SID 例：Administrator:S-1-5-21-522326296-3075860275-115714520-500",jTextFieldTwo);
-
-							break;
-						case FindReport:
-							jTextFieldTwo.setText("");
-							jTextFieldOne.setEnabled(false);
-							jTextFieldTwo.setEnabled(false);
-							jEncbutton.setEnabled(false);
-							jDecbutton.setEnabled(true);
-							UiUtils.setPrompt("",jTextFieldOne);
-							UiUtils.setPrompt("",jTextFieldTwo);
+							UiUtils.setPrompt(" xsh文件绝对路径",jTextFieldOne);
+							UiUtils.setPrompt(" 用户名:SID",jTextFieldTwo);
 
 							break;
 						case Godzilla:
@@ -580,7 +557,7 @@ public class EncryptUIHandler implements UIHandler {
 
 				EncType option = EncType.valueOf(jEncryptComboBox.getSelectedItem().toString());
 				// Xshell的
-				if (!inputJTextArea.getText().equals("") || option.equals(EncType.Xshell)){
+				if (!inputJTextArea.getText().equals("") || option.equals(EncType.Xshell.toString())){
 					try {
 						byte[] data;
 						byte[] key;
@@ -611,13 +588,6 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
 								break;
-							case Jasypt:
-								String algorithm = jTextFieldOne.getText().trim();
-								String key2 = jTextFieldTwo.getText().trim();
-								String encryptpassword = inputJTextArea.getText().replace("ENC(","").replace(")","");
-
-								result = JasyptUtils.decrypt(algorithm,key2,encryptpassword);
-								break;
 							case BASE64:
 								result = output(CommonUtils.b64decode(inputJTextArea.getText()));
 								break;
@@ -627,20 +597,6 @@ public class EncryptUIHandler implements UIHandler {
 								break;
 							case Unicode_CN:
 								result = CommonUtils.unicode2Cn(inputJTextArea.getText());
-								break;
-							case FindReport:
-								// 密文
-								String cipher = inputJTextArea.getText().trim();
-								// 掩码
-								int[] PASSWORD_MASK_ARRAY = new int[]{19, 78, 10, 15, 100, 213, 43, 23};
-								String password = "";
-								cipher = cipher.substring(3);
-								for (int i = 0; i < cipher.length()/4; i++) {
-									int c1 = Integer.parseInt(cipher.substring(i * 4,(i + 1) * 4),16);
-									int c2 = c1 ^ PASSWORD_MASK_ARRAY[i%8];
-									password = password + (char)c2;
-								}
-								result = password;
 								break;
 							case Xshell:
 								String xshpath = jTextFieldOne.getText().trim();
@@ -658,10 +614,9 @@ public class EncryptUIHandler implements UIHandler {
 									sid = temp;
 								}
 
+
+								ArrayList<XshellResult> results = new XshellDecrypt(xshpath,username,sid).Xdecrypt();
 								result = "";
-								XshellDecrypt xshellDecrypt = new XshellDecrypt(xshpath,username,sid,result);
-								ArrayList<XshellResult> results = xshellDecrypt.Xdecrypt();
-								result += xshellDecrypt.result;
 								result += "[*] Your Input Username && SID\n";
 								result += "    Username: "+username+"\n";
 								result += "    Sid: "+sid+"\n";
@@ -669,7 +624,7 @@ public class EncryptUIHandler implements UIHandler {
 								result += "\n";
 								for (int i = 0; i < results.size(); i++) {
 									result += "[+] XSHPath: "+results.get(i).getXshellpath()+"\n";
-									result += "  Host: "+results.get(i).getHost()+":"+results.get(i).getPort()+"\n";
+									result += "  Host: "+results.get(i).getHost()+"\n";
 									result += "  Username: "+results.get(i).getUsername()+"\n";
 									result += "  Password: "+results.get(i).getPassword()+"\n";
 									result += "  Version: "+results.get(i).getVersion()+"\n";
@@ -798,8 +753,6 @@ public class EncryptUIHandler implements UIHandler {
 		Md5,
 		Weblogic,
 		Druid,
-		Jasypt,
-		FindReport,
 		Unicode_CN,
 		BASE64,
 		BASE32,
@@ -811,8 +764,9 @@ public class EncryptUIHandler implements UIHandler {
 		Landray,
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 
-
+		EncType a = EncType.valueOf("Md5");
+		System.out.printf(a.toString());
 	}
 }
