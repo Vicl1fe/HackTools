@@ -49,6 +49,7 @@ public class EncryptUIHandler implements UIHandler {
 			"MD5",
 			"Weblogic",
 			"Druid",
+			"FineReport",
 			"Unicode_CN",
 			"BASE64",
 			"BASE32",
@@ -364,7 +365,15 @@ public class EncryptUIHandler implements UIHandler {
 							jDecbutton.setEnabled(true);
 							UiUtils.setPrompt(" 公钥",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
-
+						case FineReport:
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setText("");
+							jTextFieldOne.setEnabled(false);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							UiUtils.setPrompt("",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
 							break;
 						case Xshell:
 							jTextFieldTwo.setText("");
@@ -588,6 +597,10 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
 								break;
+
+							case FineReport:
+								result = FineReport.decrypt(inputJTextArea.getText());
+								break;
 							case BASE64:
 								result = output(CommonUtils.b64decode(inputJTextArea.getText()));
 								break;
@@ -752,6 +765,7 @@ public class EncryptUIHandler implements UIHandler {
 	{
 		Md5,
 		Weblogic,
+		FineReport,
 		Druid,
 		Unicode_CN,
 		BASE64,
@@ -766,7 +780,6 @@ public class EncryptUIHandler implements UIHandler {
 
 	public static void main(String[] args) {
 
-		EncType a = EncType.valueOf("Md5");
-		System.out.printf(a.toString());
+
 	}
 }
