@@ -57,6 +57,18 @@ public class CommonUtils {
         return md5Str;
     }
 
+    public static byte[] md5Byte(byte[] enc){
+        byte[] digest = null;
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("md5");
+            digest  = md5.digest(enc);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return digest;
+
+    }
+
 
     public static List<String> listAllFile(File f) {
         File[] files = f.listFiles();

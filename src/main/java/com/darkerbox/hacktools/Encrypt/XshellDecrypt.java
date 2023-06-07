@@ -67,18 +67,27 @@ public class XshellDecrypt {
 		temp[1] = CommonUtils.reCompile("UserName=(.*?)[\n|\r\n]",filecontent);
 		temp[2] = CommonUtils.reCompile("Password=(.*?)[\n|\r\n]",filecontent);
 		temp[3] = CommonUtils.reCompile("\\[SessionInfo\\][\n|\r\n]Version=(.*?)[\n|\r\n]",filecontent);
+
 		return temp;
 	}
 
 	private String decrypt(String cryptPass,String version) throws Exception{
 		String password = null;
-		if (version.startsWith("5.0") || version.startsWith("4") || version.startsWith("3") || version.startsWith("2"))
+		// 如果匹配不到版本，则就默认用低版本的来解密
+		if (version==null || version.startsWith("5.0") || version.startsWith("4") || version.startsWith("3") || version.startsWith("2"))
 		{
 			byte[] data = CommonUtils.b64decode(cryptPass);;
-			byte[] Key =  CommonUtils.sha256("!X@s#h$e%l^l&");
-			
-			byte[] passData = Arrays.copyOf(data,data.length - 0x20);
-			byte[] decrypted = Rc4Utils.RC4Base(passData, Key );
+			byte[] Key =  CommonUtils.md5Byte("!X@s#h$e%l^l&".getBytes());
+
+			byte[] decrypted;
+			// 如果长度不足0x20应该是不需要减0x20的，直接进行解密
+			if (data.length<0x20){
+				decrypted = Rc4Utils.RC4Base(data, Key );
+			}else{
+			    byte[] passData = Arrays.copyOf(data,data.length - 0x20);
+				decrypted = Rc4Utils.RC4Base(passData, Key );
+			}
+
 			password = new String(decrypted);
 		}
 		else if (version.startsWith("5.1") || version.startsWith("5.2"))

@@ -2,10 +2,9 @@ package com.darkerbox.hacktools.Encrypt;
 
 import burp.IBurpExtenderCallbacks;
 import com.alibaba.druid.filter.config.ConfigTools;
+import com.darkerbox.Main;
 import com.darkerbox.hacktools.UIHandler;
-import com.darkerbox.utils.AesUtils;
-import com.darkerbox.utils.DesUtils;
-import com.darkerbox.utils.CommonUtils;
+import com.darkerbox.utils.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,11 +16,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.Provider;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-import com.darkerbox.utils.UiUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class EncryptUIHandler implements UIHandler {
@@ -50,6 +51,8 @@ public class EncryptUIHandler implements UIHandler {
 			"Weblogic",
 			"Druid",
 			"FineReport",
+			"F5",
+			"CommonsFileUpload",
 			"Unicode_CN",
 			"BASE64",
 			"BASE32",
@@ -62,7 +65,6 @@ public class EncryptUIHandler implements UIHandler {
 
 	@Override
 	public void init() {
-
 	}
 
 	@Override
@@ -365,7 +367,26 @@ public class EncryptUIHandler implements UIHandler {
 							jDecbutton.setEnabled(true);
 							UiUtils.setPrompt(" 公钥",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
+						case CommonsFileUpload:
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setEnabled(false);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(true);
+							jDecbutton.setEnabled(false);
+							UiUtils.setPrompt("",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
+							break;
 						case FineReport:
+							jTextFieldTwo.setText("");
+							jTextFieldOne.setText("");
+							jTextFieldOne.setEnabled(false);
+							jTextFieldTwo.setEnabled(false);
+							jEncbutton.setEnabled(false);
+							jDecbutton.setEnabled(true);
+							UiUtils.setPrompt("",jTextFieldOne);
+							UiUtils.setPrompt("",jTextFieldTwo);
+							break;
+						case F5:
 							jTextFieldTwo.setText("");
 							jTextFieldOne.setText("");
 							jTextFieldOne.setEnabled(false);
@@ -439,6 +460,17 @@ public class EncryptUIHandler implements UIHandler {
 							UiUtils.setPrompt(" 密钥",jTextFieldOne);
 							UiUtils.setPrompt("",jTextFieldTwo);
 							break;
+//						case ZipFile:
+//							jTextFieldOne.setText("");
+//
+//							jTextFieldOne.setEnabled(true);
+//							jTextFieldTwo.setEnabled(false);
+//							jDecbutton.setEnabled(true);
+//							jEncbutton.setEnabled(true);
+//
+//							UiUtils.setPrompt(" 需要打包的绝对文件路径",jTextFieldOne);
+//							UiUtils.setPrompt(" 目标服务器的目录格式，例如../../../../etc/",jTextFieldTwo);
+//							break;
 						default:
 							break;
 					}
@@ -495,6 +527,27 @@ public class EncryptUIHandler implements UIHandler {
 									result = CommonUtils.md5(inputJTextArea.getText());
 								}
 								break;
+							case CommonsFileUpload:
+								int specialCharLen = 2;
+								if (inputJTextArea.getLineCount() == 1){
+									result = "[---------------Base64---------------]\n";
+									result += OtherEncryptUtils.commonfileupload_base64encode(inputJTextArea.getText().trim()) + "\n";
+									result += "[----------Quoted-Printable----------]\n";
+									result += OtherEncryptUtils.commonfileupload_qpencode(inputJTextArea.getText().trim());
+								}else{
+									String b64temp = "";
+									String qptemp = "";
+									for (int s = 0; s < inputJTextArea.getLineCount(); s++) {
+										System.out.println(s);
+										b64temp += OtherEncryptUtils.commonfileupload_base64encode(getTextareaLine(s+1)) + OtherEncryptUtils.commonfileupload_random(specialCharLen);
+										qptemp += OtherEncryptUtils.commonfileupload_qpencode(getTextareaLine(s+1)) + OtherEncryptUtils.commonfileupload_random(specialCharLen);
+									}
+									result = "[---------------Base64---------------]\n";
+									result += b64temp + "\n";
+									result += "[----------Quoted-Printable----------]\n";
+									result += qptemp;
+								}
+								break;
 							case BASE64:
 
 								result = new String(CommonUtils.b64encode(inputJTextArea.getText().getBytes()));
@@ -503,7 +556,6 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = new String(CommonUtils.b32encode(inputJTextArea.getText().getBytes()));
 								break;
-
 							case Unicode_CN:
 								result = CommonUtils.Cn2Unicode(inputJTextArea.getText());
 								break;
@@ -578,8 +630,6 @@ public class EncryptUIHandler implements UIHandler {
 								String datPath = jTextFieldOne.getText().trim();
 								String encryptText = inputJTextArea.getText().trim();
 
-								Security.addProvider((Provider)new BouncyCastleProvider());
-
 								if (encryptText.startsWith("{AES}")) {
 									encryptText = encryptText.replaceAll("^[{AES}]+", "");
 
@@ -589,7 +639,7 @@ public class EncryptUIHandler implements UIHandler {
 									encryptText = encryptText.replaceAll("^[{3DES}]+", "");
 									result = WeblogicDecrypt.decrypt3DES(datPath, encryptText);
 								} else {
-									result = "密文输入错误";
+									result = "密文输入错误,请带上{AES}或者{3DES}";
 								}
 								break;
 							case Druid:
@@ -597,9 +647,11 @@ public class EncryptUIHandler implements UIHandler {
 
 								result = ConfigTools.decrypt(publickey,inputJTextArea.getText().trim());
 								break;
-
 							case FineReport:
 								result = FineReport.decrypt(inputJTextArea.getText());
+								break;
+							case F5:
+								result = BigIPDecode.deocde(inputJTextArea.getText());
 								break;
 							case BASE64:
 								result = output(CommonUtils.b64decode(inputJTextArea.getText()));
@@ -767,6 +819,7 @@ public class EncryptUIHandler implements UIHandler {
 		Weblogic,
 		FineReport,
 		Druid,
+		F5,
 		Unicode_CN,
 		BASE64,
 		BASE32,
@@ -776,10 +829,19 @@ public class EncryptUIHandler implements UIHandler {
 		Aes_CBC,// AES/CBC/PKCS5Padding
 		Des_ECB,// DES/ECB/PKCS5Padding
 		Landray,
+		CommonsFileUpload,
 	}
 
-	public static void main(String[] args) {
+	public String getTextareaLine(int linenum) throws Exception{
+		int start=inputJTextArea.getLineStartOffset(linenum-1);
+		int end = inputJTextArea.getLineEndOffset(linenum-1);
 
+		return inputJTextArea.getText(start, end-start).trim();
+
+	}
+
+
+	public static void main(String[] args) throws Exception {
 
 	}
 }
